@@ -1,14 +1,5 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png" alt="" />
-    <div>
-      <p>
-        If Element is successfully added to this project, you'll see an
-        <code v-text="'<el-button>'"></code>
-        below
-      </p>
-      <el-button>el-button</el-button>
-    </div>
     <header-comp></header-comp>
     <router-view></router-view>
     <footer-comp></footer-comp>

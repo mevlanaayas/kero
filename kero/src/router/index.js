@@ -20,6 +20,13 @@ const routes = [
       return import(/* webpackChunkName: "about" */ "../views/About.vue");
     }
   },
+  {
+    path: "/create",
+    name: "create",
+    component: function() {
+      return import(/* webpackChunkName: "create" */ "../views/Create.vue");
+    }
+  },
   { path: "*", redirect: "/" }
 ];
 
