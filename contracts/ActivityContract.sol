@@ -1,11 +1,12 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.5.16;
 
-import "./Ownable.sol";
+import "./Owner.sol";
 
-contract ActivityContract is Ownable
+contract ActivityContract is Owner
 {
-    mapping(address => Activity) activities;        //owner of activity to map  Activity struct 
-    mapping(uint => address) activitiestIndex;      //index of activity to map  address of activity owner 
+
+    mapping(address => Activity) activities;        //owner of activity to Activity struct
+    mapping(uint => address) activityOwners;        //index of activity to address of activity owner
     uint numberOfActivity;
 
     struct Activity {
@@ -18,15 +19,12 @@ contract ActivityContract is Ownable
         uint registeredCount;
         uint date;
         string content;
-        string imageHash;
-        string participationUrl;//we should change this ,string is visible :)
-        bytes32 validateNumber;//this is a hash  to participant verify themselves for payback money
+        string participationUrl;        //we should change this ,string is visible :)
+        bytes32 validateNumber;         //this is a hash to participant verify themselves for payback money
 
-        mapping(address => Participant) participants; //address of user to map Participant struct
-        mapping(uint => address) participantIndex;    //index of user to map address of user
-
+        mapping(address => Participant) participants;       //address of user to Participant struct
+        mapping(uint => address) participantIndex;          //index of user to address of user
     }
-
 
     struct Participant {
         string email;
@@ -34,18 +32,16 @@ contract ActivityContract is Ownable
         bool payBack;
         address addr;
         bool deleted;
-        uint256 value; //amount of deposit ,maybe this is unnecessary :)
+        uint256 value;      //amount of deposit ,maybe this is unnecessary :)
     }
 
     event ParticipantRegisteredAt(string name, address _Owner, address usr, string email, uint value);
     event ParticipantDeletedAt(string name, address _Owner, address usr, string email, uint value);
     event ParticipantPayBackAt(string name, address _Owner, address usr, string email, uint value);
-
     event ActivityCreated(string _name, address _owner, uint _limit, uint _date);
     event OwnershipTransferred(string _name, address indexed previousOwner, address indexed newOwner);
 
-    function ActivityContract(bool _isActive, bool _isPayActive) public {
-        owner = msg.sender;
+    constructor(bool _isActive, bool _isPayActive) public {
         isActive = _isActive;
         isPayActive = _isPayActive;
     }
@@ -59,12 +55,12 @@ contract ActivityContract is Ownable
         _;
     }
 
-    function createActivity(string _name, uint _limit, uint _price, uint _date, string _content, string _hash)
+    function createActivity(string memory _name, uint _limit, uint _price, uint _date, string memory _content)
     onlyActive
     payable
     public
     {
-        if (msg.value != 1 * 10 ** 17) {//assume 0.1 ether to prevent DDOS, 0.01 ether :)
+        if (msg.value != 1 * 10 ** 17) {        //assume 0.1 ether to prevent DDOS, 0.01 ether :)
             revert();
         }
         require(activities[msg.sender].owner == address(0));
@@ -75,71 +71,62 @@ contract ActivityContract is Ownable
         owner : msg.sender,
         isActive : true,
         isPayActive : false,
-        price : _price, //only  owner of activity  can change
+        price : _price,     //only  owner of activity  can change
         limit : _limit,
         date : _date,
         content : _content,
-        imageHash : _hash,
         registeredCount : 0,
         participationUrl : "",
         validateNumber : 0
         });
         numberOfActivity++;
         //start with index 1
-        activitiestIndex[numberOfActivity] = msg.sender;
-        ActivityCreated(_name, msg.sender, _limit, _date);
+        activityOwners[numberOfActivity] = msg.sender;
+        emit ActivityCreated(_name, msg.sender, _limit, _date);
     }
 
-    function registerToActivity(address _activity, string _email)
+    function registerToActivity(address _activity, string memory _email)
     onlyActive
     onlyActiveActivity(_activity)
     payable
     public {
-        require(!isRegistered(_activity, msg.sender));
+        require(!isRegistered(_activity, msg.sender), "Already registered to activity");
 
         Activity storage activity = activities[_activity];
-        require(activity.registeredCount < activity.limit);
+        require(activity.registeredCount < activity.limit, "Activity capacity reached to max allowed");
 
-
-        require(msg.value >= activity.price * 1 * 10 ** 16);
-        //price control 1*ether value,now 0.1 ether
+        require(msg.value >= activity.price * 1 * 10 ** 16, "Insufficient funds");        //price control 1*ether value,now 0.1 ether
 
         activity.registeredCount++;
         activity.participants[msg.sender] = Participant(_email, false, false, msg.sender, false, msg.value);
         activity.participantIndex[activity.registeredCount] = msg.sender;
 
-        ParticipantRegisteredAt(activity.name, activity.owner, msg.sender, _email, msg.value);
+        emit ParticipantRegisteredAt(activity.name, activity.owner, msg.sender, _email, msg.value);
     }
 
-    function isRegistered(address _activity, address _partipantaddr) public constant returns (bool) {
-        Activity storage activity = activities[_activity];
-        //may be this is unnecassry
-
-        return activity.owner != address(0) &&
-        activity.participants[_partipantaddr].addr != address(0) &&
-        !activity.participants[_partipantaddr].deleted;
+    function isRegistered(address _activity, address _participantAddr) public view returns (bool) {
+        Activity storage activity = activities[_activity];      //may be this is unnecessary
+        return activity.owner != address(0) && activity.participants[_participantAddr].addr != address(0) && !activity.participants[_participantAddr].deleted;
     }
-
 
     function getParticipationUrl(address _activity) public
     onlyActive
     onlyActiveActivity(_activity)
-    constant returns (string) {
-        require(isRegistered(_activity, msg.sender));
+    view returns (string memory) {
+        require(isRegistered(_activity, msg.sender), "Cannot get participation url without registering an activity");
         require(activities[_activity].participants[msg.sender].validated);
         return activities[_activity].participationUrl;
     }
 
-    function getTotalActivity() public constant returns (uint) {
+    function getTotalActivity() public view returns (uint) {
         return numberOfActivity;
     }
 
-    function getTotalParticipant(address _activity) public constant returns (uint) {
+    function getTotalParticipant(address _activity) public view returns (uint) {
         return activities[_activity].registeredCount;
     }
 
-
-    function getLimit(address _activity) public constant returns (uint) {
+    function getLimit(address _activity) public view returns (uint) {
         return activities[_activity].limit;
     }
 
@@ -147,21 +134,21 @@ contract ActivityContract is Ownable
     onlyActive
     onlyActiveActivity(_activity)
     public view {
-        require(isRegistered(_activity, msg.sender));
+        require(isRegistered(_activity, msg.sender), "Cannot leave activity without registering");
     }
 
     function getInfoActivity(address _activity)
-    public view returns (string, address, bool, uint, uint, uint, uint, string, string){
+    public view returns (string memory, address, bool, uint, uint, uint, uint, string memory){
         Activity storage temp = activities[_activity];
-        return (temp.name, temp.owner, temp.isActive, temp.price, temp.registeredCount, temp.limit, temp.date, temp.content, temp.imageHash);
-
+        return (temp.name, temp.owner, temp.isActive, temp.price, temp.registeredCount, temp.limit, temp.date, temp.content);
     }
+
     //Admin methods
-    function getParticipiant(address _activity, uint idx) public
+    function getParticipant(address _activity, uint idx) public
     onlyActive
     onlyOwnerActivity(_activity)
-    constant
-    returns (uint index, string email, address addr, uint256 value)
+    view
+    returns (uint index, string memory email, address addr, uint256 value)
     {
         Activity storage activity = activities[_activity];
         address userAddr = activity.participantIndex[idx];
@@ -169,7 +156,7 @@ contract ActivityContract is Ownable
         return (idx, participant.email, participant.addr, participant.value);
     }
 
-    function deleteParticipiant(address _activity, uint idx) public
+    function deleteParticipant(address _activity, uint idx) public
     onlyActive
     onlyOwnerActivity(_activity)
     {
@@ -177,20 +164,16 @@ contract ActivityContract is Ownable
         address userAddr = activity.participantIndex[idx];
         Participant storage participant = activity.participants[userAddr];
 
-
-        require(!participant.deleted);
-        //is not deleted
-        require(!participant.payBack);
-        //is not payBack
+        require(!participant.deleted, "Participant already deleted");
+        require(!participant.payBack, "Participant is not payBack");
 
         participant.deleted = true;
         participant.payBack = true;
         activity.registeredCount--;
 
-        participant.addr.transfer(participant.value);
-        //if is it fail ,throws on failure
-        ParticipantDeletedAt(activity.name, address(_activity), msg.sender, participant.email, participant.value);
-
+        address payable payableAddressOfParticipant = address(uint160(participant.addr));
+        payableAddressOfParticipant.transfer(participant.value);
+        emit ParticipantDeletedAt(activity.name, address(_activity), msg.sender, participant.email, participant.value);
     }
 
     function validateStudentStatus(address _activity, uint idx, bool isValidated)
@@ -205,8 +188,8 @@ contract ActivityContract is Ownable
     }
 
 
-    // if we will share invitation link like this,we must change this method because string is visibile on blockexplorer :)
-    function setParticipationLink(address _activity, string url) public
+    // if we will share invitation link like this,we must change this method because string is visible on block explorer :)
+    function setParticipationLink(address _activity, string memory url) public
     onlyActive
     onlyOwnerActivity(_activity) {
         activities[_activity].participationUrl = url;
@@ -244,31 +227,26 @@ contract ActivityContract is Ownable
         activities[_activity].isPayActive = true;
     }
 
-
     //only Owner set validateNumber=keccak256(key), during lesson we will share only key to participants
-    function validateMeReturnMoney(address _activity, string _key) public
+    function validateMeReturnMoney(address _activity, string memory _key) public
     onlyActive
     onlyActiveActivity(_activity)
     {
         require(isRegistered(_activity, msg.sender));
         Activity storage activity = activities[_activity];
-        require(activity.validateNumber == keccak256(_key));
+        require(activity.validateNumber == keccak256(abi.encodePacked(_key)), "Key is not valid");
 
         Participant storage participant = activity.participants[msg.sender];
 
-        require(!participant.deleted);
-        //is not deleted
-        require(!participant.payBack);
-        //is not payBack
+        require(!participant.deleted, "Participant already deleted");
+        require(!participant.payBack, "Participant is not payBack");
 
         participant.payBack = true;
 
-        participant.addr.transfer(participant.value * 6);
-        //if is it fail ,throws on failure
-        //todo   multiple 5 times for only test, change later
-        ParticipantPayBackAt(activity.name, activity.owner, msg.sender, participant.email, participant.value);
+        address payable payableAddressOfParticipant = address(uint160(participant.addr));
+        payableAddressOfParticipant.transfer(participant.value * 6);
 
-
+        emit ParticipantPayBackAt(activity.name, activity.owner, msg.sender, participant.email, participant.value);
     }
 
     function setValidateHash(address _activity, bytes32 _hash) public
@@ -280,7 +258,7 @@ contract ActivityContract is Ownable
 
     function getValidateHash(address _activity)
     onlyOwnerActivity(_activity)
-    public constant returns (bytes32)
+    public view returns (bytes32)
     {
         return activities[_activity].validateNumber;
     }
@@ -291,15 +269,15 @@ contract ActivityContract is Ownable
     public {
         Activity storage activity = activities[_activity];
         require(newOwner != address(0));
-        OwnershipTransferred(activity.name, owner, newOwner);
+        emit OwnershipTransferred(activity.name, activity.owner, newOwner);
         activity.owner = newOwner;
     }
 
-    function getName(address _activity) public constant returns (string){
+    function getName(address _activity) public view returns (string memory){
         return activities[_activity].name;
     }
 
-    function getActive() public constant returns (bool){
+    function getActive() public view returns (bool){
         return isActive;
     }
 

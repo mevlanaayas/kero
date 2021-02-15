@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png" />
+    <img src="./assets/logo.png" alt="" />
     <div>
       <p>
         If Element is successfully added to this project, you'll see an
@@ -9,24 +9,28 @@
       </p>
       <el-button>el-button</el-button>
     </div>
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <header-comp></header-comp>
+    <router-view></router-view>
+    <footer-comp></footer-comp>
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 export default {
   name: "app",
   components: {
-    HelloWorld
+    "footer-comp": Footer,
+    "header-comp": Header
   }
 };
 </script>
 
 <style>
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: "Ubuntu", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
