@@ -1,9 +1,11 @@
 <template>
   <div>
-    <activity></activity>
-    {{ newActivities }}
-    {{ activities }}
-    {{ pastActivities }}
+    <h2>Activities</h2>
+    <activity
+      v-bind:activity="activity"
+      v-bind:key="activity.key"
+      v-for="activity in activities"
+    ></activity>
   </div>
 </template>
 

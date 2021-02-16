@@ -1,34 +1,26 @@
 <template>
-  <div class="card-body">
+  <el-card shadow="hover" style="margin: 10px; display: flex !important;">
     <router-link
       class="text-dark"
       :to="{ path: '/activity/' + activity.address }"
     >
-      <img
-        class="card-img img-fluid rounded mx-auto d-block"
-        :src="getImageUrl()"
-        alt="Card image"
-        style="max-width: 100%; height: 75%"
-      />
-      <div class="card-body">
-        <h6 class="card-title">{{ activity.name.toUpperCase() }}</h6>
-        <p class="card-text">{{ activity.content }}</p>
-      </div>
+      <img :src="getImageUrl()" class="image" alt="" />
     </router-link>
-  </div>
+
+    <div style="padding: 14px; float: right">
+      <span>{{ activity.name.toUpperCase() }}</span>
+      <div class="bottom clearfix">
+        {{ activity.content }}
+      </div>
+    </div>
+  </el-card>
 </template>
 
 <script>
 export default {
   name: "Activity",
-  data: function() {
-    return {
-      activity: {
-        address: "asd",
-        name: "asdasd",
-        content: "asdasd"
-      }
-    };
+  props: {
+    activity: Object
   },
   methods: {
     getImageUrl: function() {

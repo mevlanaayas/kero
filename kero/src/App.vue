@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <header-comp></header-comp>
-    <router-view></router-view>
+    <router-view class="router-view"></router-view>
     <footer-comp></footer-comp>
   </div>
 </template>
@@ -22,5 +22,8 @@ export default {
 <style>
 #app {
   font-family: "Ubuntu", Helvetica, Arial, sans-serif;
+}
+.router-view {
+  margin-bottom: 100px;
 }
 </style>
