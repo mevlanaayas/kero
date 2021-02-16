@@ -1,39 +1,23 @@
 <template>
-  <div v-if="$route.name !== 'entry'">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <router-link class="navbar-brand" to="/"> Kero Header </router-link>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarText"
-        aria-controls="navbarText"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarText">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <router-link class="navbar-brand" to="/create">
-              Create Event
-            </router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="navbar-brand" to="/admin">
-              My Events
-            </router-link>
-          </li>
-        </ul>
-        <span class="form-inline">
-          <b class="mr-sm-2"
-            >Logged in as: {{ $store.getters.currentAddress }}</b
-          >
-          <b class="ml-2 mr-sm-0">TotalActivity: {{ totalActivity }}</b>
-        </span>
-      </div>
-    </nav>
+  <div class="header">
+    <div class="header-object-container">
+      <el-avatar> Kero </el-avatar>
+    </div>
+    <div class="header-object-container">
+      <el-avatar
+        src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+      ></el-avatar
+      >{{ $store.getters.currentAddress }}
+    </div>
+    <div class="header-object-container">
+      <el-avatar> Activities </el-avatar>
+      {{ totalActivity }}
+      <router-link class="text-dark" :to="{ path: '/create' }">
+        <div class="card-body">
+          <h1 class="card-title">Create</h1>
+        </div>
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -59,4 +43,13 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.header {
+  display: flex;
+  padding: 24px;
+}
+.header-object-container {
+  flex: 1;
+  text-align: center;
+}
+</style>

@@ -1,5 +1,10 @@
 <template>
-  <activity></activity>
+  <div>
+    <activity></activity>
+    {{ newActivities }}
+    {{ activities }}
+    {{ pastActivities }}
+  </div>
 </template>
 
 <script>

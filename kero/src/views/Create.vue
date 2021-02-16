@@ -1,49 +1,54 @@
 <template>
-  <el-form ref="form" :model="form" label-width="120px" v-loading="pending">
-    <el-form-item label="Activity Name">
-      <el-input v-model="form.activityName"></el-input>
-    </el-form-item>
+  <el-row :gutter="20">
+    <el-col :span="12" :offset="6">
+      <h2>Create Activity</h2>
+      <el-form ref="form" :model="form" label-width="120px" v-loading="pending">
+        <el-form-item label="Activity Name">
+          <el-input v-model="form.activityName"></el-input>
+        </el-form-item>
 
-    <el-form-item>
-      <el-checkbox v-on:change="free($event)">Free</el-checkbox>
-    </el-form-item>
+        <el-form-item>
+          <el-checkbox v-on:change="free($event)">Free</el-checkbox>
+        </el-form-item>
 
-    <el-form-item>
-      <el-checkbox v-model="form.isActive">Is Active</el-checkbox>
-    </el-form-item>
+        <el-form-item>
+          <el-checkbox v-model="form.isActive">Is Active</el-checkbox>
+        </el-form-item>
 
-    <el-form-item label="Ticket Price">
-      <el-input
-        v-model="form.price"
-        type="number"
-        placeholder="milli ether"
-      ></el-input>
-    </el-form-item>
+        <el-form-item label="Ticket Price">
+          <el-input
+              v-model="form.price"
+              type="number"
+              placeholder="milli ether"
+          ></el-input>
+        </el-form-item>
 
-    <el-form-item label="Participant Limit">
-      <el-input v-model="form.participantLimit" type="number"></el-input>
-    </el-form-item>
+        <el-form-item label="Participant Limit">
+          <el-input v-model="form.participantLimit" type="number"></el-input>
+        </el-form-item>
 
-    <el-form-item>
-      <el-date-picker
-        v-model="form.date"
-        type="date"
-        placeholder="Pick a day"
-        :picker-options="pickerOptions"
-      >
-      </el-date-picker>
-    </el-form-item>
+        <el-form-item label="Event Date">
+          <el-date-picker
+              v-model="form.date"
+              type="date"
+              placeholder="Pick a day"
+              :picker-options="pickerOptions"
+          >
+          </el-date-picker>
+        </el-form-item>
 
-    <el-form-item label="Agenda-Content">
-      <el-input type="textarea" v-model="form.content"></el-input>
-    </el-form-item>
-    <el-form-item>
-      <el-button type="primary" @click="createActivity"
-        >Create Activity
-      </el-button>
-      <el-button>Cancel</el-button>
-    </el-form-item>
-  </el-form>
+        <el-form-item label="Content">
+          <el-input type="textarea" rows="4" v-model="form.content"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="createActivity"
+          >Create Activity
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-col>
+  </el-row>
+
 </template>
 
 <script>
