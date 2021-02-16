@@ -9,9 +9,7 @@
       <el-avatar
         src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
       ></el-avatar
-      >{{ $store.getters.currentAddress.substr(0, 7) }}...{{
-        $store.getters.currentAddress.substring(37)
-      }}
+      >{{ $store.getters.currentAddress }}
     </div>
     <div class="header-object-container">
       <el-alert
