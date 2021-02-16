@@ -17,6 +17,9 @@
           <h1 class="card-title">Create</h1>
         </div>
       </router-link>
+      <el-button :loading="connecting" type="primary" @click="connectWallet"
+        >Connect Wallet
+      </el-button>
     </div>
   </div>
 </template>
@@ -27,15 +30,31 @@ export default {
   name: "Header",
   data: function() {
     return {
+      connecting: false,
       totalActivity: null
     };
   },
+  methods: {
+    connectWallet() {
+      // TODO: check here https://docs.metamask.io/guide/ethereum-provider.html#basic-usage
+      try {
+        this.connecting = true;
+        window.ethereum.request({ method: "eth_requestAccounts" });
+      } catch (error) {
+        console.error(error);
+      }
+      this.connecting = false;
+    }
+  },
   mounted() {
+    let that = this;
+    window.ethereum.on("accountsChanged", function(accounts) {
+      console.log(accounts[0]);
+    });
     const temp = store.getters
       .contract()
       .methods.getTotalActivity()
       .call();
-    let that = this;
     temp.then(function(val) {
       that.totalActivity = val;
     });

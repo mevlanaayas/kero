@@ -17,9 +17,9 @@
 
         <el-form-item label="Ticket Price">
           <el-input
-              v-model="form.price"
-              type="number"
-              placeholder="milli ether"
+            v-model="form.price"
+            type="number"
+            placeholder="milli"
           ></el-input>
         </el-form-item>
 
@@ -29,10 +29,10 @@
 
         <el-form-item label="Event Date">
           <el-date-picker
-              v-model="form.date"
-              type="date"
-              placeholder="Pick a day"
-              :picker-options="pickerOptions"
+            v-model="form.date"
+            type="date"
+            placeholder="Pick a day"
+            :picker-options="pickerOptions"
           >
           </el-date-picker>
         </el-form-item>
@@ -42,13 +42,12 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="createActivity"
-          >Create Activity
+            >Create Activity
           </el-button>
         </el-form-item>
       </el-form>
     </el-col>
   </el-row>
-
 </template>
 
 <script>
@@ -77,7 +76,7 @@ export default {
       pending: false,
       pickerOptions: {
         disabledDate(time) {
-          return time.getTime() > Date.now();
+          return time.getTime() < Date.now();
         },
         shortcuts: [
           {

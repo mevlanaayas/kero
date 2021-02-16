@@ -36,9 +36,6 @@ let getWeb3 = new Promise(function(resolve, reject) {
       new Web3.providers.HttpProvider("http://localhost:7545")
   );
 
-  // TODO: check here https://docs.metamask.io/guide/ethereum-provider.html#basic-usage
-  window.ethereum.enable();
-
   resolve({
     injectedWeb3: typeof Web3.givenProvider === undefined,
     web3() {

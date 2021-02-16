@@ -21,7 +21,7 @@ export default {
   bottom: 0;
   left: 0;
   padding: 6px;
-  background-color: Tomato;
+  background-color: #ff9e8b;
   color: white;
   text-align: center;
   position: absolute;
